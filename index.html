@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Power Calculator</title>
+  <style>
+    body {
+      background-color: #F5F5F5;
+      color: #444444;
+      font-family: Arial, sans-serif;
+    }
+
+    #container {
+      width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #CCCCCC;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .device-fields {
+      margin-bottom: 10px;
+    }
+
+    .device-fields input {
+      width: 100px;
+    }
+
+    #compute-button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      background-color: #555555;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #result {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Power Calculator</h1>
+    <div>
+      <label for="num-devices">Number of Devices:</label>
+      <input type="number" id="num-devices">
+    </div>
+
+    <div id="device-fields-container"></div>
+
+    <button id="compute-button">Compute</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Event listener for creating device fields when the number of devices is entered
+    var numDevicesInput = document.getElementById('num-devices');
+    numDevicesInput.addEventListener('input', function() {
+      createDeviceFields();
+    });
+
+    // Function to create device fields dynamically
+    function createDeviceFields() {
+      var numDevices = document.getElementById('num-devices').value;
+      var deviceFieldsContainer = document.getElementById('device-fields-container');
+      deviceFieldsContainer.innerHTML = '';
+
+      for (var i = 1; i <= numDevices; i++) {
+        var deviceFields = document.createElement('div');
+        deviceFields.className = 'device-fields';
+
+        var ampsField = document.createElement('input');
+        ampsField.type = 'number';
+        ampsField.placeholder = 'Amps';
+
+        var voltsField = document.createElement('input');
+        voltsField.type = 'number';
+        voltsField.placeholder = 'Volts';
+
+        var wattsField = document.createElement('input');
+        wattsField.type = 'number';
+        wattsField.placeholder = 'Watts';
+
+        var timeField = document.createElement('input');
+        timeField.type = 'number';
+        timeField.step = 'any';
+        timeField.placeholder = 'Time';
+
+        // Event listener for filling watts automatically when amps and volts are filled
+        ampsField.addEventListener('input', function() {
+          var amps = parseFloat(this.value);
+          var volts = parseFloat(this.parentNode.querySelector('input[placeholder="Volts"]').value);
+          if (!isNaN(amps) && !isNaN(volts)) {
+            this.parentNode.querySelector('input[placeholder="Watts"]').value = (amps * volts).toFixed(2);
+          }
+        });
+
+        voltsField.addEventListener('input', function() {
+          var amps = parseFloat(this.parentNode.querySelector('input[placeholder="Amps"]').value);
+          var volts = parseFloat(this.value);
+          if (!isNaN(amps) && !isNaN(volts)) {
+            this.parentNode.querySelector('input[placeholder="Watts"]').value = (amps * volts).toFixed(2);
+          }
+        });
+
+        // Event listener for disabling amps and volts when watts is filled
+        wattsField.addEventListener('input', function() {
+          if (this.value !== '') {
+            this.parentNode.querySelector('input[placeholder="Amps"]').disabled = true;
+            this.parentNode.querySelector('input[placeholder="Volts"]').disabled = true;
+          } else {
+            this.parentNode.querySelector('input[placeholder="Amps"]').disabled = false;
+            this.parentNode.querySelector('input[placeholder="Volts"]').disabled = false;
+          }
+        });
+
+        deviceFields.appendChild(ampsField);
+        deviceFields.appendChild(voltsField);
+        deviceFields.appendChild(wattsField);
+        deviceFields.appendChild(timeField);
+
+        deviceFieldsContainer.appendChild(deviceFields);
+      }
+    }
+
+// Function to compute the result
+function computeResult() {
+  var devices = document.getElementsByClassName('device-fields');
+  var totalUnits = 0;
+
+  for (var i = 0; i < devices.length; i++) {
+    var watts = parseFloat(devices[i].querySelector('input[placeholder="Watts"]').value);
+    var time = parseFloat(devices[i].querySelector('input[placeholder="Time"]').value);
+
+    if (!isNaN(watts) && !isNaN(time)) {
+      time = time / 60; // Divide time by 60 to convert minutes to hours
+      watts = watts / 1000; // Divide watts by 1000 to convert watts to kilowatts
+
+      var deviceUnits = watts * time;
+      totalUnits += deviceUnits;
+    }
+  }
+
+  var resultElement = document.getElementById('result');
+  resultElement.textContent = 'Total Units: ' + totalUnits.toFixed(2);
+}
+
+
+    // Event listener for computing the result
+    var computeButton = document.getElementById('compute-button');
+    computeButton.addEventListener('click', computeResult);
+  </script>
+</body>
+</html>
